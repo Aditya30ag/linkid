@@ -18,20 +18,33 @@ export default function CreateLinkId() {
     const [checking, setChecking] = useState(false);
     const abortRef = useRef<AbortController | null>(null);
 
-    async function checkUsername(value: string) {
+    const checkUsername = useCallback(async (value: string) => {
         setUsername(value);
 
         if (value.length < 3) {
             setAvailable(null);
             setSuggestions([]);
+            setChecking(false);
             return;
         }
 
-        const res = await fetch(`/api/username/check?username=${value}`);
+        abortRef.current?.abort();
+        abortRef.current = new AbortController();
+        setChecking(true);
+
+        try {
+        const res = await fetch(`/api/username/check?username=${value}`, {
+            signal: abortRef.current.signal,
+        });
         const data = await res.json();
         setAvailable(data.available);
         setSuggestions(data.suggestions ?? []);
-    }
+        } catch (e) {
+        if ((e as Error).name !== "AbortError") throw e;
+        } finally {
+        setChecking(false);
+        }
+    }, []);
 
     async function createLinkId() {
         setLoading(true);
