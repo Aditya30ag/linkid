@@ -12,6 +12,7 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
+        const normalizedEmail = email.toLowerCase().trim();
 
         const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
@@ -22,30 +23,32 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
-
-        const existingUser = await prisma.user.findUnique({
-            where: { email },
-        });
-
-        if (existingUser) {
-            return NextResponse.json(
-                { error: "User already exists" },
-                { status: 409 }
-            );
-        }
-
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        await prisma.user.create({
-            data: {
-                name,
-                email,
-                password: hashedPassword,
+        
+        try {
+            await prisma.user.create({
+                data: {
+                    name,
+                    email: normalizedEmail,
+                    password: hashedPassword,
             },
         });
+    } catch (err: any) {
+        if (err.code === "P2002") {
 
-        return NextResponse.json({ success: true });
+      return NextResponse.json (
+        {error: "User already exists"},
+        {status: 409} 
+    );
+    }
+    throw err;
+    }
+        return NextResponse.json ({ success: true, message: "User created successfully"},
+        {status: 201}
+    );
+
     } catch (err) {
+        console.error("Signup error:", err);
         return NextResponse.json(
             { error: "Something went wrong" },
             { status: 500 }
