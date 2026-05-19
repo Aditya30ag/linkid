@@ -33,6 +33,14 @@ const POPULAR_PLATFORMS = [
     { value: "website", label: "Personal Website / Other" },
 ];
 
+/**
+ * AddLinkBox Component
+ * Renders a form to add a new link to the user's profile.
+ * It includes inputs for platform selection, custom display name, and URL.
+ *
+ * @param {Object} props - The component props.
+ * @param {function} props.onAdded - Callback function triggered when a new link is successfully added.
+ */
 export default function AddLinkBox({
     onAdded,
 }: {
@@ -43,14 +51,18 @@ export default function AddLinkBox({
     const [platform, setPlatform] = useState("");
     const [loading, setLoading] = useState(false);
 
+    /**
+     * Handles the form submission to add a link.
+     * Validates input fields and sends a POST request to the API.
+     */
     async function submit() {
-        if (!platform) {
-            return toast.error("Please select a platform");
-        }
-
         const validation = validateUrl(url);
         if (!validation.valid) {
             return toast.error(validation.error);
+        }
+
+        if (!platform) {
+            return toast.error("Please select a platform");
         }
 
         const finalLabel = label.trim();
