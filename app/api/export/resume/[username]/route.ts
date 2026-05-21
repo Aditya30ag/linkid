@@ -9,7 +9,11 @@ export async function GET(
   const { username } = await params;
   const user = await prisma.user.findUnique({
     where: { username },
-    include: { links: true },
+    include: {
+      links: {
+        where: { isPublic: true },
+      },
+    },
   });
 
   if (!user) return new Response("Not found", { status: 404 });
