@@ -84,7 +84,7 @@ export default function EditProfileCard({
         setLoading(false);
 
         if (!res.ok) {
-            alert("Failed to update profile");
+            alert("Failed to save draft");
             return;
         }
         if(onSuccess) onSuccess();
@@ -173,8 +173,13 @@ export default function EditProfileCard({
                         (!available && username !== initialUsername)
                     }
                 >
-                    {loading ? "Saving..." : "Save Changes"}
+                    {loading ? "Saving draft..." : "Save as Draft"}
                 </Button>
+
+                <p className="text-xs text-muted-foreground">
+                    Changes are saved as a draft. Go to{" "}
+                    <strong>Actions → Publish Draft</strong> to make them live on your public profile.
+                </p>
             </CardContent>
         </Card>
     );

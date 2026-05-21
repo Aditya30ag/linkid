@@ -70,7 +70,7 @@ export default function LoginPage() {
             <Button
               variant="outline"
               className="w-full flex items-center justify-center gap-2"
-              onClick={() => signIn("google")}
+              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
             >
               <FcGoogle className="h-5 w-5" />
               Continue with Google
@@ -79,7 +79,7 @@ export default function LoginPage() {
             <Button
               variant="outline"
               className="w-full flex items-center justify-center gap-2"
-              onClick={() => signIn("github")}
+              onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
             >
               <FaGithub className="h-5 w-5" />
               Continue with GitHub

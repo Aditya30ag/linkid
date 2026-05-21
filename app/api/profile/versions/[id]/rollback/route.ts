@@ -1,5 +1,6 @@
 import { rollbackProfileVersion } from "@/lib/profileWorkflow";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,7 +9,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -43,9 +44,11 @@ export async function POST(
     console.error("Profile rollback error:", error);
     const message =
       error instanceof Error ? error.message : "Failed to rollback profile";
+    const isNotFound =
+      error instanceof Error && error.message === "Version not found or access denied";
     return NextResponse.json(
       { error: message },
-      { status: 404 }
+      { status: isNotFound ? 404 : 500 }
     );
   }
 }

@@ -12,6 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { getCsrfToken } from "@/lib/csrfClient";
 import { ProfileDraft } from "@prisma/client";
 
+type ProfileVersion = {
+    id: string;
+    snapshot: { name: string | null; username: string | null; bio: string | null; image: string | null };
+    changeType: string;
+    diff: Record<string, unknown>;
+    createdAt: Date;
+};
+
 type MergeResult = {
     success?: boolean;
     code?: string;
@@ -26,7 +34,7 @@ type MergeResult = {
 interface ProfileActionsCardProps {
     hasPassword: boolean;
     profileDraft?: ProfileDraft | null;
-    profileVersions?: any[];
+    profileVersions?: ProfileVersion[];
 }
 
 export function ProfileActionsCard({ hasPassword, profileDraft, profileVersions = [] }: ProfileActionsCardProps) {

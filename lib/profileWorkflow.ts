@@ -4,9 +4,9 @@ import { Prisma } from "@prisma/client";
 import crypto from "crypto";
 
 /**
- * Type for Prisma transaction client - using any for compatibility
+ * Type for Prisma transaction client
  */
-type TransactionClient = any;
+type TransactionClient = Prisma.TransactionClient;
 
 /**
  * Profile snapshot for versioning and comparison
@@ -163,12 +163,16 @@ export async function isProfileUsernameAvailable(
     return false;
   }
 
-  // Check if username is an alias
+  // Check if username is an alias — but allow the user to reclaim their own alias
   const alias = await prisma.userAlias.findUnique({
     where: { username },
   });
 
-  return !alias;
+  if (alias && alias.userId !== excludeUserId) {
+    return false;
+  }
+
+  return true;
 }
 
 /**
@@ -215,6 +219,13 @@ export async function publishProfileDraft(
 
     // Handle username change - create alias for old username
     if (beforeSnapshot.username && beforeSnapshot.username !== afterSnapshot.username) {
+      // Recheck availability within the transaction to guard against TOCTOU races
+      const takenByOther = await tx.user.findFirst({
+        where: { username: afterSnapshot.username, NOT: { id: userId } },
+      });
+      if (takenByOther) {
+        throw new Error("Username already taken");
+      }
       await ensureUsernameAliases(tx, userId, beforeSnapshot.username);
     }
 
@@ -436,11 +447,9 @@ export async function rollbackProfileVersion(
       },
     });
 
-    // Delete any existing draft
-    await tx.profileDraft.delete({
+    // Delete any existing draft (deleteMany never throws on missing record)
+    await tx.profileDraft.deleteMany({
       where: { userId },
-    }).catch(() => {
-      // Draft may not exist
     });
 
     // Revoke all preview tokens

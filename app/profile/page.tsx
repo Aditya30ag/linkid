@@ -45,6 +45,11 @@ export default async function ProfilePage() {
                     profileDraft={user.profileDraft}
                     profileVersions={profileVersions}
                 />
+
+                <DangerZoneCard
+                    userEmail={user.email}
+                    hasPassword={Boolean(user.password)}
+                />
             </main>
         </>
     );
