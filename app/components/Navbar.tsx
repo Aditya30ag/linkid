@@ -21,11 +21,13 @@ export function Navbar() {
         const sectionIds = NAV_LINKS.map((l) => l.id);
         const observer = new IntersectionObserver(
             (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) setActiveSection(entry.target.id);
-                });
+                const activeEntry = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+                if (activeEntry) setActiveSection(activeEntry.target.id);
             },
-            { threshold: 0.55 }
+            { threshold: 0.25 }
         );
         sectionIds.forEach((id) => {
             const el = document.getElementById(id);
@@ -146,7 +148,10 @@ export function Navbar() {
                                 <Link
                                     key={id}
                                     href={href}
-                                    onClick={() => setMobileOpen(false)}
+                                    onClick={() => {
+                                        setActiveSection(id);
+                                        setMobileOpen(false);
+                                    }}
                                     className={`rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors ${
                                         activeSection === id
                                             ? "bg-violet-600 text-white shadow-sm shadow-violet-500/25"
