@@ -435,7 +435,7 @@ function DemoRow({
           </span>
         </div>
         <div className="flex min-w-0 items-center gap-2 font-mono text-xs text-zinc-500 dark:text-zinc-400 sm:text-sm">
-          <span className="truncate">{url}</span>
+          <span className="truncate min-w-0 flex-1">{url}</span>
           <ArrowUpRight className="h-4 w-4 shrink-0 opacity-50 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-violet-600 group-hover:opacity-100 dark:group-hover:text-violet-300" />
         </div>
       </div>
