@@ -150,7 +150,7 @@ export default async function Home() {
 
         {/* Features Section (Marquee Implemented Here) */}
         {/* Features Section */}
-        <section className="relative overflow-hidden py-16 md:py-24" id="features">
+        <section className="relative scroll-mt-28 overflow-hidden py-16 md:py-24" id="features">
           <SectionWash />
           <div className="px-4 sm:px-6 lg:px-8">
             <SectionHeader
@@ -199,7 +199,7 @@ export default async function Home() {
         </section>
 
         {/* Demo Section */}
-        <section className="relative px-4 py-16 sm:px-6 md:py-24 lg:px-8" id="demo">
+        <section className="relative scroll-mt-28 px-4 py-16 sm:px-6 md:py-24 lg:px-8" id="demo">
           <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.86fr_1.14fr]">
             <SectionHeader
               align="left"
@@ -234,7 +234,7 @@ export default async function Home() {
         </section>
 
         {/* Call To Action */}
-        <section className="relative px-4 py-16 text-center sm:px-6 md:py-24 lg:px-8" id="how">
+        <section className="relative scroll-mt-28 px-4 py-16 text-center sm:px-6 md:py-24 lg:px-8" id="how">
           <div className="absolute inset-x-0 top-1/2 -z-10 h-44 -translate-y-1/2 bg-gradient-to-r from-transparent via-violet-200/45 to-transparent blur-3xl dark:via-violet-500/10" />
           <div className="mx-auto max-w-3xl rounded-3xl border border-white/70 bg-white/70 px-6 py-12 shadow-xl shadow-violet-950/10 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20 sm:px-10">
             <h2 className="text-3xl font-bold tracking-tight text-zinc-950 dark:text-white sm:text-4xl">

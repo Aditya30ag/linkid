@@ -5,41 +5,85 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/app/components/ThemeToggle";
 import { Link2, Menu, X } from "lucide-react";
 
-const NAV_LINKS = [
+// Page section order (must match DOM order on app/page.tsx)
+const SECTION_IDS = ["features", "demo", "how"] as const;
+type SectionId = (typeof SECTION_IDS)[number];
+
+const NAV_LINKS: { href: string; label: string; id: SectionId }[] = [
     { href: "/#features", label: "Features", id: "features" },
-    { href: "/#how", label: "How it works", id: "how" },
     { href: "/#demo", label: "Demo", id: "demo" },
+    { href: "/#how", label: "How it works", id: "how" },
 ];
+
+const ACTIVATION_OFFSET = 140;
+
+function resolveActiveSection(pendingId: SectionId | null): SectionId | "" {
+    if (pendingId) return pendingId;
+
+    for (let i = SECTION_IDS.length - 1; i >= 0; i--) {
+        const id = SECTION_IDS[i];
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const { top, bottom } = el.getBoundingClientRect();
+        if (top <= ACTIVATION_OFFSET && bottom > ACTIVATION_OFFSET) return id;
+    }
+
+    let current: SectionId | "" = "";
+    for (const id of SECTION_IDS) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= ACTIVATION_OFFSET) current = id;
+    }
+    return current;
+}
 
 export function Navbar() {
     const [activeSection, setActiveSection] = useState("");
     const [mobileOpen, setMobileOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+    const pendingSectionRef = useRef<SectionId | null>(null);
+    const pendingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const selectSection = (id: SectionId) => {
+        if (pendingTimerRef.current) clearTimeout(pendingTimerRef.current);
+        pendingSectionRef.current = id;
+        setActiveSection(id);
+        pendingTimerRef.current = setTimeout(() => {
+            pendingSectionRef.current = null;
+            setActiveSection(resolveActiveSection(null));
+        }, 500);
+    };
 
     useEffect(() => {
-        const sectionIds = NAV_LINKS.map((l) => l.id);
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const activeEntry = entries
-                    .filter((entry) => entry.isIntersecting)
-                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        const syncActiveSection = () => {
+            setActiveSection(resolveActiveSection(pendingSectionRef.current));
+        };
 
-                if (activeEntry) setActiveSection(activeEntry.target.id);
-            },
-            { threshold: 0.25 }
-        );
-        sectionIds.forEach((id) => {
-            const el = document.getElementById(id);
-            if (el) observer.observe(el);
-        });
-        return () => observer.disconnect();
-    }, []);
+        const onScroll = () => {
+            setScrolled(window.scrollY > 20);
+            syncActiveSection();
+        };
 
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", onScroll, { passive: true });
-        return () => window.removeEventListener("scroll", onScroll);
+        window.addEventListener("hashchange", syncActiveSection);
+        window.addEventListener("resize", syncActiveSection);
+        syncActiveSection();
+        requestAnimationFrame(syncActiveSection);
+
+        const hash = window.location.hash.slice(1) as SectionId;
+        const hashTimer =
+            hash && SECTION_IDS.includes(hash)
+                ? window.setTimeout(syncActiveSection, 150)
+                : undefined;
+
+        return () => {
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("hashchange", syncActiveSection);
+            window.removeEventListener("resize", syncActiveSection);
+            if (hashTimer !== undefined) window.clearTimeout(hashTimer);
+            if (pendingTimerRef.current) clearTimeout(pendingTimerRef.current);
+        };
     }, []);
 
     useEffect(() => {
@@ -93,6 +137,7 @@ export function Navbar() {
                             <Link
                                 key={id}
                                 href={href}
+                                onClick={() => selectSection(id)}
                                 className={`relative rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-300
                                 after:absolute after:left-1/2 after:bottom-0 after:h-[2px] after:w-2/5
                                 after:-translate-x-1/2 after:scale-x-0 after:rounded-full
@@ -149,7 +194,7 @@ export function Navbar() {
                                     key={id}
                                     href={href}
                                     onClick={() => {
-                                        setActiveSection(id);
+                                        selectSection(id);
                                         setMobileOpen(false);
                                     }}
                                     className={`rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors ${
