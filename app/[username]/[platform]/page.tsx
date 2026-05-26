@@ -22,6 +22,7 @@ export default async function PlatformRedirect({
         where: {
             platform,
             userId: resolved.user.id,
+            isPublic: true,
         },
         select: { id: true, url: true, userId: true },
     });
