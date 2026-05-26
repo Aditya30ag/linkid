@@ -291,7 +291,7 @@ export default async function Home() {
             <FooterColumn title="Support" links={[
   ["Report Issue", "https://github.com/vishnukothakapu/linkid/issues"],
   ["Community", "https://github.com/vishnukothakapu/linkid/discussions"],
-  ["Documentation", "https://github.com/vishnukothakapu/linkid#readme"],
+  ["Documentation", "/documentation"],
   ["Contact Us", "mailto:support@linkid.qzz.io"],
 ]} />           
             <FooterColumn title="Company" links={[
