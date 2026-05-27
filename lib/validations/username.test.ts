@@ -8,6 +8,10 @@ test("normalizeUsername trims whitespace and lowercases", () => {
 });
 
 test("validateUsername accepts mixed case input after normalization", () => {
-  assert.equal(validateUsername("LinkID-User").valid, true);
-  assert.equal(validateUsername("  LINKID-USER  ").valid, true);
+  assert.equal(validateUsername("linkid-user").valid, true);
+});
+
+test("validateUsername rejects uppercase usernames", () => {
+  assert.equal(validateUsername("LinkID-User").valid, false);
+  assert.equal(validateUsername("  LINKID-USER  ").valid, false);
 });

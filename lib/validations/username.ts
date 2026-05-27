@@ -10,17 +10,23 @@ export function validateUsername(username: string): { valid: boolean; error?: st
   if (!normalizedUsername) {
     return { valid: false, error: "Username is required" };
   }
+  if (username !== normalizedUsername) {
+    return {
+      valid: false,
+      error: "Username must be lowercase.",
+    };
+  }
   if (!usernameRegex.test(normalizedUsername)) {
     return {
       valid: false,
-      error: "Username can only contain letters, numbers, and hyphens.",
+      error: "Username can only contain lowercase letters, numbers, and hyphens.",
     };
   }
   if (normalizedUsername.length < 3) {
     return { valid: false, error: "Username must be at least 3 characters" };
   }
   if (normalizedUsername.length > 30) {
-    return { valid: false, error: "Username must be under 30 characters" };
+    return { valid: false, error: "Username must be at most 30 characters" };
   }
   return { valid: true };
 }
