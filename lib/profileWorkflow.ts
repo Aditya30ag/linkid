@@ -418,7 +418,7 @@ export async function rollbackProfileVersion(
     const beforeSnapshot: ProfileSnapshot = user;
     const afterSnapshot: ProfileSnapshot = {
       name: version.name,
-      username: version.username,
+      username: version.username ? normalizeUsername(version.username) : null,
       bio: version.bio,
       image: version.image,
     };
@@ -428,6 +428,25 @@ export async function rollbackProfileVersion(
 
     // Handle username change
     if (beforeSnapshot.username && beforeSnapshot.username !== afterSnapshot.username) {
+      if (afterSnapshot.username) {
+        const normalizedUsername = normalizeUsername(afterSnapshot.username);
+        const takenByOther = await tx.user.findFirst({
+          where: { username: normalizedUsername, NOT: { id: userId } },
+          select: { id: true },
+        });
+
+        const aliasTakenByOther = await tx.userAlias.findFirst({
+          where: { username: normalizedUsername, NOT: { userId } },
+          select: { id: true },
+        });
+
+        if (takenByOther || aliasTakenByOther) {
+          throw new Error("Username already taken");
+        }
+
+        afterSnapshot.username = normalizedUsername;
+      }
+
       await ensureUsernameAliases(tx, userId, beforeSnapshot.username);
     }
 
