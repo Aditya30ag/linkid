@@ -26,27 +26,50 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    const [existingUser, existingAlias] = await Promise.all([
-      prisma.user.findUnique({ where: { username: normalizedUsername } }),
-      prisma.userAlias.findUnique({ where: { username: normalizedUsername } }),
-    ]);
+    const user = await prisma.$transaction(async (tx) => {
+      const currentUser = await tx.user.findUnique({
+        where: { id: userId },
+        select: { id: true, username: true, name: true },
+      });
 
-    if (existingUser || existingAlias) {
-      return NextResponse.json(
-        { error: "Username already taken" },
-        { status: 409 }
-      );
-    }
+      if (!currentUser) {
+        throw new Error("User not found");
+      }
 
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: { username: normalizedUsername },
+      if (currentUser.username) {
+        throw new Error("Username already set");
+      }
+
+      const [existingUser, existingAlias] = await Promise.all([
+        tx.user.findUnique({ where: { username: normalizedUsername }, select: { id: true } }),
+        tx.userAlias.findUnique({ where: { username: normalizedUsername }, select: { id: true } }),
+      ]);
+
+      if (existingUser || existingAlias) {
+        throw new Error("Username already taken");
+      }
+
+      return tx.user.update({
+        where: { id: userId },
+        data: { username: normalizedUsername },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+        },
+      });
     });
 
     return NextResponse.json({ success: true, user }, { status: 200 });
 
   } catch (error: unknown) {
-    const err = error as { code?: string; meta?: { target?: string[] } };
+    const err = error as { code?: string; meta?: { target?: string[] }; message?: string };
+    if (err.message === "Username already set") {
+      return NextResponse.json({ error: "Username already set" }, { status: 409 });
+    }
+    if (err.message === "Username already taken") {
+      return NextResponse.json({ error: "Username already taken" }, { status: 409 });
+    }
     if (err.code === "P2002" && err.meta?.target?.includes("username")) {
       return NextResponse.json({ error: "Username already taken" }, { status: 409 });
     }
