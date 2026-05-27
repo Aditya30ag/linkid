@@ -345,7 +345,7 @@ function ProofItem({ children }: { children: React.ReactNode }) {
 
 function PreviewLink({ icon, label, path }: { icon: React.ReactNode; label: string; path: string }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-violet-200/60 bg-white/60 px-4 py-3 shadow-sm shadow-violet-100/50 backdrop-blur-sm transition-all duration-200 hover:border-violet-300/70 hover:bg-white/80 hover:shadow-md dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none dark:hover:border-white/10 dark:hover:bg-white/[0.04] dark:hover:shadow-none">
+    <div className="flex items-center justify-between rounded-xl border border-violet-200/60 bg-white/60 px-4 py-3 shadow-sm shadow-violet-100/50 backdrop-blur-sm transition-all duration-200 hover:border-violet-300/70 hover:bg-white/80 hover:shadow-md dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none dark:hover:border-white/20 dark:hover:bg-white/[0.06] dark:hover:shadow-sm">
       <div className="flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-700 dark:bg-violet-400/10 dark:text-violet-200">
           {icon}
