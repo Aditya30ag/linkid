@@ -52,7 +52,7 @@ export function detectPlatform(url: string): Platform {
 }
 
 export function isKnownPlatform(p: string): p is Platform {
-    return p in PLATFORM_PATTERNS;
+  return Object.prototype.hasOwnProperty.call(PLATFORM_PATTERNS, p);
 }
 
 export function validatePlatformUrl(
