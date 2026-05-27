@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { validateUsername } from "@/lib/validations/username";
+import { normalizeUsername, validateUsername } from "@/lib/validations/username";
 import { Prisma } from "@prisma/client";
 import crypto from "crypto";
 
@@ -27,16 +27,22 @@ export async function upsertProfileDraft(
 ): Promise<ProfileSnapshot> {
   // Validate username if it's being changed
   if (data.username) {
-    const basicValidation = validateUsername(data.username);
+    const normalizedUsername = normalizeUsername(data.username);
+    const basicValidation = validateUsername(normalizedUsername);
     if (!basicValidation.valid) {
       throw new Error(basicValidation.error || "Invalid username");
     }
 
     // Check if username is available
-    const isAvailable = await isProfileUsernameAvailable(data.username, userId);
+    const isAvailable = await isProfileUsernameAvailable(normalizedUsername, userId);
     if (!isAvailable) {
       throw new Error("Username already taken");
     }
+
+    data = {
+      ...data,
+      username: normalizedUsername,
+    };
   }
 
   const draft = await prisma.profileDraft.upsert({
@@ -154,9 +160,11 @@ export async function isProfileUsernameAvailable(
   username: string,
   excludeUserId?: string
 ): Promise<boolean> {
+  const normalizedUsername = normalizeUsername(username);
+
   // Check if username is taken
   const user = await prisma.user.findUnique({
-    where: { username },
+    where: { username: normalizedUsername },
   });
 
   if (user && user.id !== excludeUserId) {
@@ -165,7 +173,7 @@ export async function isProfileUsernameAvailable(
 
   // Check if username is an alias — but allow the user to reclaim their own alias
   const alias = await prisma.userAlias.findUnique({
-    where: { username },
+    where: { username: normalizedUsername },
   });
 
   if (alias && alias.userId !== excludeUserId) {
@@ -209,7 +217,7 @@ export async function publishProfileDraft(
     const beforeSnapshot: ProfileSnapshot = user;
     const afterSnapshot: ProfileSnapshot = {
       name: draft.name ?? user.name,
-      username: draft.username ?? user.username,
+      username: draft.username ? normalizeUsername(draft.username) : user.username,
       bio: draft.bio ?? user.bio,
       image: draft.image ?? user.image,
     };

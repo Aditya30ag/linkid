@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { normalizeUsername } from "@/lib/validations/username";
 import { NextResponse } from "next/server";
 
 async function isAvailable(username: string): Promise<boolean> {
@@ -12,32 +13,33 @@ async function isAvailable(username: string): Promise<boolean> {
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
-    const username = searchParams.get("username")?.toLowerCase();
+    const username = searchParams.get("username");
+    const normalizedUsername = username ? normalizeUsername(username) : null;
 
-    if (!username) {
+    if (!normalizedUsername) {
         return NextResponse.json({ available: false });
     }
 
-    const available = await isAvailable(username);
+    const available = await isAvailable(normalizedUsername);
 
     if (available) {
         return NextResponse.json({ available: true });
     }
 
     const year = new Date().getFullYear().toString().slice(-2);
-    const short = username.slice(0, 5);
-    const abbr = username.replace(/[aeiou]/gi, "").slice(0, 6) || short;
+    const short = normalizedUsername.slice(0, 5);
+    const abbr = normalizedUsername.replace(/[aeiou]/gi, "").slice(0, 6) || short;
     const rand = Math.floor(10 + Math.random() * 90);
 
     const candidates = [...new Set([
-        abbr !== username ? abbr : null,
-        `${username}.dev`,
-        `the${username}`,
-        `${username}hq`,
-        `i${username}`,
+        abbr !== normalizedUsername ? abbr : null,
+        `${normalizedUsername}.dev`,
+        `the${normalizedUsername}`,
+        `${normalizedUsername}hq`,
+        `i${normalizedUsername}`,
         `${short}${year}`,
-        `${username}.${year}`,
-        `${username}${rand}`,
+        `${normalizedUsername}.${year}`,
+        `${normalizedUsername}${rand}`,
     ].filter(Boolean) as string[])];
 
     const suggestions: string[] = [];

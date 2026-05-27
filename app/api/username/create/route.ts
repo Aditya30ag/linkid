@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { validateUsername } from "@/lib/validations/username";
+import { normalizeUsername, validateUsername } from "@/lib/validations/username";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -15,15 +15,20 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { username } = body;
     const userId = session.user.id;
+    if (typeof username !== "string") {
+      return NextResponse.json({ error: "Username is required" }, { status: 400 });
+    }
 
-    const validation = validateUsername(username);
+    const normalizedUsername = normalizeUsername(username);
+
+    const validation = validateUsername(normalizedUsername);
     if (!validation.valid) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
     const [existingUser, existingAlias] = await Promise.all([
-      prisma.user.findUnique({ where: { username } }),
-      prisma.userAlias.findUnique({ where: { username } }),
+      prisma.user.findUnique({ where: { username: normalizedUsername } }),
+      prisma.userAlias.findUnique({ where: { username: normalizedUsername } }),
     ]);
 
     if (existingUser || existingAlias) {
@@ -35,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.update({
       where: { id: userId },
-      data: { username },
+      data: { username: normalizedUsername },
     });
 
     return NextResponse.json({ success: true, user }, { status: 200 });
