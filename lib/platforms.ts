@@ -19,7 +19,7 @@ const PLATFORM_PATTERNS: Record<Platform, RegExp> = {
     linkedin: /^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[^/]+/i,
     leetcode: /^https?:\/\/(www\.)?leetcode\.com\/[^/]+/i,
     youtube: /^https?:\/\/(www\.)?youtube\.com\/[^/]+/i,
-    x: /^https?:\/\/(www\.)?x\.com\/[^/]+/i,
+    x: /^https?:\/\/(www\.)?(x|twitter)\.com\/[^/]+/i,
     facebook: /^https?:\/\/(www\.)?facebook\.com\/[^/]+/i,
     instagram: /^https?:\/\/(www\.)?instagram\.com\/[^/]+/i,
     discord: /^https?:\/\/(www\.)?discord\.com\/users\/[^/]+/i,
@@ -49,6 +49,10 @@ export function detectPlatform(url: string): Platform {
     }
 
     return "website";
+}
+
+export function isKnownPlatform(p: string): p is Platform {
+  return Object.prototype.hasOwnProperty.call(PLATFORM_PATTERNS, p);
 }
 
 export function validatePlatformUrl(

@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 import { PLATFORM_ICONS } from "@/lib/platformIcons";
 import { validateUrl } from "@/lib/urlValidation";
+import { validatePlatformUrl, isKnownPlatform } from "@/lib/platforms";
 import type { Link as ProfileLink } from "@/app/[username]/types/type";
 import type { DraggableAttributes } from "@dnd-kit/core";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
@@ -55,6 +56,10 @@ export function LinkItem({
         const validation = validateUrl(url);
         if (!validation.valid) {
             return toast.error(validation.error);
+        }
+
+        if (isKnownPlatform(link.platform) && !validatePlatformUrl(link.platform, url)) {
+            return toast.error(`Enter valid link for chosen platform`);
         }
 
         await onUpdate(link.id, url);

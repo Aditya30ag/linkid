@@ -72,8 +72,8 @@ export function Navbar() {
                 <div
                     className={`flex h-12 items-center justify-between gap-4 rounded-full border px-3 transition-all duration-300 sm:h-13 sm:px-4 ${
                         scrolled
-                            ? "border-violet-300/20 bg-white/80 shadow-lg shadow-violet-950/10 backdrop-blur-2xl dark:border-violet-500/15 dark:bg-transparent dark:shadow-violet-950/30 dark:backdrop-blur-2xl"
-                            : "border-violet-200/25 bg-white/65 shadow-md shadow-violet-950/[0.06] backdrop-blur-xl dark:border-violet-500/10 dark:bg-transparent dark:shadow-none dark:backdrop-blur-xl"
+                            ? "border-white/20 bg-white/10 shadow-xl shadow-violet-500/10 ring-1 ring-white/15 backdrop-blur-3xl dark:border-violet-500/15 dark:bg-transparent dark:shadow-violet-950/30 dark:ring-0 dark:backdrop-blur-2xl"
+                            : "border-white/15 bg-white/8 shadow-lg shadow-violet-500/[0.07] ring-1 ring-white/10 backdrop-blur-2xl dark:border-violet-500/10 dark:bg-transparent dark:shadow-none dark:ring-0 dark:backdrop-blur-xl"
                     }`}
                 >
                     {/* Logo */}
@@ -127,7 +127,7 @@ export function Navbar() {
                         <button
                             onClick={() => setMobileOpen((o) => !o)}
                             aria-label={mobileOpen ? "Close menu" : "Open menu"}
-                            className="flex h-8 w-8 items-center justify-center rounded-full border border-violet-200/60 bg-white/80 text-zinc-700 shadow-sm transition-colors hover:bg-violet-50 hover:text-violet-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-violet-300"
+                            className="flex h-8 w-8 items-center justify-center rounded-full border border-violet-200/50 bg-white/30 text-zinc-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white/50 hover:text-violet-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-violet-300"
                         >
                             {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
                         </button>
@@ -140,7 +140,7 @@ export function Navbar() {
                         mobileOpen
                             ? "max-h-80 border-violet-300/20 opacity-100 shadow-lg shadow-violet-950/20 dark:border-violet-500/20 dark:shadow-violet-950/40"
                             : "max-h-0 border-transparent opacity-0"
-                    } bg-white/90 backdrop-blur-2xl dark:bg-violet-950/60`}
+                    } bg-white/15 backdrop-blur-3xl dark:bg-violet-950/60`}
                 >
                     <div className="px-3 pb-4 pt-3">
                         <nav className="mb-3 flex flex-col gap-1">
